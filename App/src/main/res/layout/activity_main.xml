@@ -8,9 +8,9 @@
         tools:context=".MainActivity">
 
     <!--<TextureView-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content" tools:layout_editor_absoluteY="0dp"-->
-            <!--tools:layout_editor_absoluteX="0dp" android:id="@+id/textureView"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content" tools:layout_editor_absoluteY="0dp"-->
+    <!--tools:layout_editor_absoluteX="0dp" android:id="@+id/textureView"-->
     <!--/>-->
     <TextureView
             android:id="@+id/textureView"
@@ -31,14 +31,14 @@
             app:layout_constraintStart_toStartOf="parent"
     />
     <!--<ImageButton-->
-            <!--android:id="@+id/capture_button"-->
-            <!--android:layout_width="72dp"-->
-            <!--android:layout_height="72dp"-->
-            <!--android:layout_margin="24dp"-->
-            <!--app:srcCompat="@android:drawable/ic_menu_camera"-->
-            <!--app:layout_constraintBottom_toBottomOf="parent"-->
-            <!--app:layout_constraintEnd_toEndOf="parent"-->
-            <!--app:layout_constraintStart_toStartOf="parent"-->
+    <!--android:id="@+id/capture_button"-->
+    <!--android:layout_width="72dp"-->
+    <!--android:layout_height="72dp"-->
+    <!--android:layout_margin="24dp"-->
+    <!--app:srcCompat="@android:drawable/ic_menu_camera"-->
+    <!--app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--app:layout_constraintEnd_toEndOf="parent"-->
+    <!--app:layout_constraintStart_toStartOf="parent"-->
     <!--/>-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>
