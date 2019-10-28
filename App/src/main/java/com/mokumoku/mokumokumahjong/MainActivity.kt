@@ -5,6 +5,7 @@ import android.os.Bundle
 // Your IDE likely can auto-import these classes, but there are several
 // different implementations so we list them here to disambiguate
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
 import android.util.Size
 import android.graphics.Matrix
@@ -21,7 +22,6 @@ import androidx.camera.core.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
-import java.io.File
 import java.util.concurrent.TimeUnit
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver
@@ -31,8 +31,8 @@ import com.amazonaws.auth.BasicAWSCredentials
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState
 import com.google.gson.Gson
 import org.json.JSONObject
-import java.io.InputStream
-import java.io.InputStreamReader
+import java.io.*
+import java.nio.charset.Charset
 
 
 // This is an arbitrary number we are using to keep tab of the permission
@@ -43,8 +43,17 @@ private const val REQUEST_CODE_PERMISSIONS = 10
 // This is an array of all the permission specified in the manifest
 private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
 
+//private val instance: MyContext? = null
+//private val applicationContext: Context? = null
 
 class MainActivity : AppCompatActivity(), LifecycleOwner {
+
+    companion object {
+        var  instance: MainActivity? =null
+            private set
+    }
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -90,11 +99,33 @@ class MainActivity : AppCompatActivity(), LifecycleOwner {
             }
 
             fun _parseConfig(filePath:String):Config {
-                val source = File(filePath).readText(Charsets.UTF_8)
+                //val source = File(filePath).readText(Charsets.UTF_8)
+                val source = loadJSONFromAssets()
                 return Gson().fromJson(source, Config::class.java)!!
             }
+
+            public fun loadJSONFromAssets(): String {
+                var json: String? = null
+                try {
+                    val inputStream = MainActivity.instance!!.getAssets().open("awskey.json")
+                    val size = inputStream.available()
+                    val buffer = ByteArray(size)
+                    inputStream.read(buffer)
+                    inputStream.close()
+                    json = String(buffer, Charset.defaultCharset())
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                }
+                return json.toString()
+            }
+
+
         }
     }
+
+
+
+
 
 
     private fun startCamera() {
