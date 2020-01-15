@@ -5,32 +5,26 @@ import android.os.Bundle
 // Your IDE likely can auto-import these classes, but there are several
 // different implementations so we list them here to disambiguate
 import android.Manifest
-import android.content.Context
 import android.content.pm.PackageManager
 import android.util.Size
 import android.graphics.Matrix
-import android.util.JsonReader
 import android.util.Log
 import android.util.Rational
 import android.view.Surface
 import android.view.TextureView
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.ImageButton
 import android.widget.Toast
 import androidx.camera.core.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
-import java.util.concurrent.TimeUnit
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility
 import com.amazonaws.services.s3.AmazonS3Client
 import com.amazonaws.auth.BasicAWSCredentials
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState
 import com.google.gson.Gson
-import org.json.JSONObject
 import java.io.*
 import java.nio.charset.Charset
 
@@ -49,6 +43,7 @@ private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
 class MainActivity : AppCompatActivity(), LifecycleOwner {
 
     companion object {
+        var keys :Config? = null
         var  instance: MainActivity? =null
             private set
     }
@@ -75,8 +70,31 @@ class MainActivity : AppCompatActivity(), LifecycleOwner {
             updateTransform()
         }
 
-
+        try {
+            val inputStream:InputStream = assets.open("awskey.json")
+            val inputStreamReader = InputStreamReader(inputStream)
+            val sb = StringBuilder()
+            var line: String?
+            val br = BufferedReader(inputStreamReader)
+            line = br.readLine()
+            while (line != null) {
+                sb.append(line)
+                line = br.readLine()
+            }
+            br.close()
+            Log.d("loadJson","readline:"+sb.toString())
+            keys = Gson().fromJson(sb.toString(), Config::class.java)!!
+            Log.d("loadJson", "checkGson:" + keys!!.accessKey + keys!!.secKey + keys!!.bucket)
+        } catch (e:Exception){
+            Log.e("loadJson", e.toString())
+        }
     }
+
+    data class Config(
+        val accessKey:String,
+        val secKey:String,
+        val bucket:String
+    )
 
 
 
@@ -84,8 +102,8 @@ class MainActivity : AppCompatActivity(), LifecycleOwner {
     // Add this after onCreate
 
     private lateinit var viewFinder: TextureView
-
-    data class Config
+/*
+    data class Config2
         (
         val accessKey:String,
         val secKey:String,
@@ -93,21 +111,20 @@ class MainActivity : AppCompatActivity(), LifecycleOwner {
     ) {
         companion object {
             var config:Config = _parseConfig("awskey.json")
-
             fun get():Config {
                 return config
             }
 
             fun _parseConfig(filePath:String):Config {
-                //val source = File(filePath).readText(Charsets.UTF_8)
-                val source = loadJSONFromAssets()
+                val source = File(filePath).readText(Charsets.UTF_8)
+//                val source = loadJSONFromAssets()
                 return Gson().fromJson(source, Config::class.java)!!
             }
 
             public fun loadJSONFromAssets(): String {
                 var json: String? = null
                 try {
-                    val inputStream = MainActivity.instance!!.getAssets().open("awskey.json")
+                    val inputStream = MainActivity.instance!!.getAssets().open("{\n  \"accessKey\": \"aa\",\n  \"seckey\": \"bb\"\n}")
                     val size = inputStream.available()
                     val buffer = ByteArray(size)
                     inputStream.read(buffer)
@@ -118,13 +135,8 @@ class MainActivity : AppCompatActivity(), LifecycleOwner {
                 }
                 return json.toString()
             }
-
-
         }
-    }
-
-
-
+    }*/
 
 
 
@@ -185,15 +197,15 @@ class MainActivity : AppCompatActivity(), LifecycleOwner {
 
 
                         // 認証情報の作成
-                        val basicAWSCredentials = BasicAWSCredentials(Config.get().accessKey, Config.get().secKey)
+                        val basicAWSCredentials = BasicAWSCredentials(keys!!.accessKey, keys!!.secKey)
                         Log.d("CameraXApp", "awsS3 credentials ")
 
                         // 作成した認証情報でクライアント接続用オブジェクトを作成
                         val s3Client = AmazonS3Client(basicAWSCredentials)
                         val transferUtility = TransferUtility(s3Client, applicationContext)
-//                        Log.d("CameraXApp", "aws conect start")
+                        Log.d("CameraXApp", "aws conect start")
                         // ファイルを指定してアップロードを行う
-                        val observer = transferUtility.upload(Config.get().bucket, "${System.currentTimeMillis()}.jpg", file)
+                        val observer = transferUtility.upload(keys!!.bucket, "${System.currentTimeMillis()}.jpg", file)
 
                         // コールバックを登録しておく
                         observer.setTransferListener(object : TransferListener {
