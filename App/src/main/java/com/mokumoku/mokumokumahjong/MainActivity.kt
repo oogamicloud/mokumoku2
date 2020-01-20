@@ -205,7 +205,7 @@ class MainActivity : AppCompatActivity(), LifecycleOwner {
                         val transferUtility = TransferUtility(s3Client, applicationContext)
                         Log.d("CameraXApp", "aws conect start")
                         // ファイルを指定してアップロードを行う
-                        val observer = transferUtility.upload(keys!!.bucket, "${System.currentTimeMillis()}.jpg", file)
+                        val observer = transferUtility.upload(keys!!.bucket, "${file.name}", file)
 
                         // コールバックを登録しておく
                         observer.setTransferListener(object : TransferListener {
